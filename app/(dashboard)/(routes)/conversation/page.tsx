@@ -3,10 +3,10 @@
 import axios from "axios";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MessageSquare } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { formSchema } from "./constants";
+import { MessageSquare } from "lucide-react";
 
 import { Heading } from "@/components/heading";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -17,6 +17,8 @@ import { Empty } from "@/components/empty";
 import { useRouter } from "next/navigation";
 // 1) Import the main OpenAI class from the stable API surface
 import OpenAI from "openai";
+import { Loader } from "@/components/loader";
+import { cn } from "@/lib/utils";
 
 
 // 2) Define (or alias) the type from the official OpenAI types
@@ -109,12 +111,23 @@ const ConversationPage = () => {
           </Form>
         </div>
         <div className="space-y-4 mt-4">
+          {isLoading && (
+            <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
+              <Loader />
+            </div>
+          )}
           {messages.length === 0 && !isLoading && (
             <Empty label="No messages yet!"/>
           )}
           <div className="flex flex-col-reverse gap-y-4">
             {messages.map((message, index) => ( 
-              <div key={index}>
+              <div 
+                key={index}
+                className={cn(
+                  "p-8 w-full flex items-start gap-x-8 rounded-lg",
+                  message.role === "user" ? "bg-white border border-black/10" : "bg-muted",
+                )}
+              >
                 {typeof message.content === 'string' ? message.content : JSON.stringify(message.content)}
               </div>
             ))}
