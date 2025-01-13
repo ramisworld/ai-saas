@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { formSchema } from "./constants";
-import { MessageSquare } from "lucide-react";
+import { Bot, MessageSquare } from "lucide-react";
 
 import { Heading } from "@/components/heading";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -19,6 +19,8 @@ import { useRouter } from "next/navigation";
 import OpenAI from "openai";
 import { Loader } from "@/components/loader";
 import { cn } from "@/lib/utils";
+import { UserAvatar } from "@/components/user-avatar";
+import { BotAvatar } from "@/components/bot-avatar";
 
 
 // 2) Define (or alias) the type from the official OpenAI types
@@ -128,7 +130,10 @@ const ConversationPage = () => {
                   message.role === "user" ? "bg-white border border-black/10" : "bg-muted",
                 )}
               >
-                {typeof message.content === 'string' ? message.content : JSON.stringify(message.content)}
+                {message.role === "user" ? <UserAvatar /> : <BotAvatar />} 
+                <p className="text-sm">
+                  {typeof message.content === 'string' ? message.content : JSON.stringify(message.content)}
+                </p>
               </div>
             ))}
           </div>
