@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     }
 
     const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
+            model: "gpt-4o-mini-2024-07-18",
             messages});
 
 
