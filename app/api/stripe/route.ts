@@ -5,7 +5,7 @@ import prismadb from "@/lib/prismadb";
 import { stripe } from "@/lib/stripe";
 import { absoluteUrl } from "@/lib/utils";
 
-const settingsUrl = `${process.env.NEXT_PUBLIC_APP_URL}/setting`;
+const settingsUrl = `${process.env.NEXT_PUBLIC_APP_URL}/settings`;
 
 export async function GET() {
     try {
@@ -20,7 +20,7 @@ export async function GET() {
         where: {
             userId
         }
-      })
+      });
 
       if (userSubscription && userSubscription.stripeCustomerId) {
         const stripeSession = await stripe.billingPortal.sessions.create({
@@ -47,7 +47,7 @@ export async function GET() {
                         description: "Unlimited AI Generations",
 
                     },
-                    unit_amount: 2000,
+                    unit_amount: 500,
                     recurring: {
                         interval: "month"
                     }
