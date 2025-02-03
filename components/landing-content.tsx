@@ -7,20 +7,32 @@ const testimonials = [
         name: "Rami",
         avatar: "R",
         title: "Software Engineer",
-        description: "This is the best application I've ever used"
+        description: "The UI is so clean and intuitive—I was up and running in minutes. The code generation feature is a game-changer, and it's incredibly easy to use. It feels like the app knows exactly what I need. Highly recommend!"
     },
     {
-        name: "John",
-        avatar: "J",
-        title: "Business Owner",
-        description: "Super easy to use highly recommend"
+        name: "Leonardo",
+        avatar: "L",
+        title: "Microsoft Architect",
+        description: "SThe design is flawless—sleek, modern, and intuitive. The conversation bot and code generation features are incredibly easy to use. It's one of the best-designed tools I've ever worked with."
     },
     {
         name: "Marcelo",
         avatar: "M",
         title: "Company Director",
-        description: "This app has a range of very powerful AI models which I use on a daily basis"
+        description: "This platform is a joy to use. The interface is simple yet powerful, and my team picked it up instantly. The image and video tools are not only effective but also a breeze to navigate. Perfect for businesses!"
     },
+    {
+        name: "Sophia",
+        avatar: "S",
+        title: "UX Designer",
+        description: "I'm impressed by how clean and user-friendly this platform is. The image generation tool is simple yet powerful, and the interface guides you perfectly. A delight to use!"
+    },
+    {
+        name: "Ethan",
+        avatar: "E",
+        title: "Data Scientist",
+        description: "This app is a dream to use. The UI is so well-organized, and the music generation tool is both easy and effective. It's the perfect balance of simplicity and power. Love it!"
+    }
 
 ]
 
