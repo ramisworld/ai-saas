@@ -25,7 +25,7 @@ const testimonials = [
         name: "Sophia",
         avatar: "S",
         title: "UX Designer",
-        description: "I'm impressed by how clean and user-friendly this platform is. The image generation tool is simple yet powerful, and the interface guides you perfectly. A delight to use!"
+        description: "I'm very impressed by how clean and user-friendly this platform is. The image generation tool is simple yet powerful, and the interface guides you perfectly. A delight to use!"
     },
     {
         name: "Ethan",
