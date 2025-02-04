@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     }
 
     const response = await openai.chat.completions.create({
-            model: "o3-mini-2025-01-31",
+            model: "gpt-4o-mini-2024-07-18",
             messages});
 
     if (!isPro) {
