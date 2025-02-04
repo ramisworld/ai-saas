@@ -13,7 +13,7 @@ const testimonials = [
         name: "Leonardo",
         avatar: "L",
         title: "Microsoft Architect",
-        description: "SThe design is flawless—sleek, modern, and intuitive. The conversation bot and code generation features are incredibly easy to use. It's one of the best-designed tools I've ever worked with."
+        description: "The design is flawless—sleek, modern, and intuitive. The conversation bot and code generation features are incredibly easy to use. It's one of the best-designed tools I've ever worked with."
     },
     {
         name: "Marcelo",
