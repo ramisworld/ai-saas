@@ -4,9 +4,101 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL") 
+  url       = env("DATABASE_URL")
 }
 
+enum CareerSourceType {
+  CV
+  PROFILE
+  PROJECT
+  EXPERIENCE
+  CERTIFICATION
+  EDUCATION
+  ACHIEVEMENT
+  GOAL
+  NOTE
+}
+
+enum ApplicationDocumentType {
+  MATCH_ANALYSIS
+  TAILORED_CV
+  COVER_LETTER
+  RECRUITER_MESSAGE
+  INTERVIEW_PREP
+  GAP_ANALYSIS
+}
+
+enum TrackerStatus {
+  DRAFT_READY
+  APPLIED
+  INTERVIEWING
+  OFFER
+  REJECTED
+  ARCHIVED
+}
+
+enum UsageType {
+  JOB_ANALYSIS
+  APPLICATION_PACK
+  EMBEDDING
+}
+
+enum ProofCvMode {
+  SCRATCH
+  EXISTING_CV
+}
+
+enum ProofCvSessionStatus {
+  LANDING
+  AUTH_GATE
+  JOB_CONTEXT
+  CV_OR_PROFILE_CONTEXT
+  PROCESSING_CONTEXT
+  AI_FOLLOWUP_QUESTIONS
+  JOB_FIT_PLAN
+  GENERATING_CV
+  CV_EDITOR
+  EXPORT_READY
+}
+
+enum EvidenceItemType {
+  PROJECT
+  SKILL
+  WORK_EXPERIENCE
+  EDUCATION
+  CERTIFICATION
+  ACHIEVEMENT
+  TOOL
+  GOAL
+}
+
+enum EvidenceItemSource {
+  UPLOADED_CV
+  USER_BRAIN_DUMP
+  FOLLOWUP_ANSWER
+  GENERATED_CORRECTION
+}
+
+enum EvidenceConfidence {
+  CONFIRMED
+  INFERRED
+  NEEDS_CONFIRMATION
+}
+
+model AppUser {
+  id String @id @default(cuid())
+  clerkUserId String @unique
+  email String?
+  firstName String?
+  lastName String?
+  imageUrl String?
+  lastSeenAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([lastSeenAt])
+}
 
 model UserApiLimit {
   id String @id @default(cuid())
@@ -25,4 +117,234 @@ model UserSubscription {
   stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
 }
 
+model CareerVault {
+  id String @id @default(cuid())
+  userId String @unique
+  summary String?
+  structuredProfile Json?
+  completeness Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  sources CareerSource[]
+  chunks CareerChunk[]
+}
+
+model CareerSource {
+  id String @id @default(cuid())
+  userId String
+  vaultId String?
+  type CareerSourceType
+  title String
+  originalText String @db.Text
+  parsedData Json?
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vault CareerVault? @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  chunks CareerChunk[]
+
+  @@index([userId])
+  @@index([vaultId])
+  @@index([type])
+}
+
+model CareerChunk {
+  id String @id @default(cuid())
+  userId String
+  vaultId String?
+  sourceId String?
+  sourceType CareerSourceType?
+  title String?
+  text String @db.Text
+  embedding Json
+  metadata Json?
+  createdAt DateTime @default(now())
+
+  vault CareerVault? @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  source CareerSource? @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([vaultId])
+  @@index([sourceId])
+}
+
+model JobPosting {
+  id String @id @default(cuid())
+  userId String
+  targetRole String
+  company String?
+  roleTitle String?
+  jobUrl String?
+  rawText String? @db.Text
+  parsedData Json?
+  confidence Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  packs ApplicationPack[]
+  trackerEntries ApplicationTrackerEntry[]
+
+  @@index([userId])
+}
+
+model ApplicationPack {
+  id String @id @default(cuid())
+  userId String
+  jobPostingId String
+  matchScore Int @default(0)
+  summary String? @db.Text
+  strongMatches Json?
+  weakSpots Json?
+  missingSkills Json?
+  atsKeywords Json?
+  evidence Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobPosting JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+  documents ApplicationDocument[]
+  trackerEntry ApplicationTrackerEntry?
+
+  @@index([userId])
+  @@index([jobPostingId])
+}
+
+model ApplicationDocument {
+  id String @id @default(cuid())
+  userId String
+  applicationPackId String
+  type ApplicationDocumentType
+  title String
+  content String @db.Text
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applicationPack ApplicationPack @relation(fields: [applicationPackId], references: [id], onDelete: Cascade)
+
+  @@unique([applicationPackId, type])
+  @@index([userId])
+}
+
+model ApplicationTrackerEntry {
+  id String @id @default(cuid())
+  userId String
+  jobPostingId String?
+  applicationPackId String? @unique
+  company String?
+  role String
+  status TrackerStatus @default(DRAFT_READY)
+  nextAction String?
+  notes String? @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobPosting JobPosting? @relation(fields: [jobPostingId], references: [id], onDelete: SetNull)
+  applicationPack ApplicationPack? @relation(fields: [applicationPackId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model UsageRecord {
+  id String @id @default(cuid())
+  userId String
+  type UsageType
+  amount Int @default(1)
+  metadata Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model ApplicationSession {
+  id String @id @default(cuid())
+  clerkUserId String?
+  anonymousSessionId String?
+  targetRoleRaw String
+  targetCompany String?
+  targetRole String?
+  cvMode ProofCvMode
+  status ProofCvSessionStatus @default(LANDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobContext JobContext?
+  evidenceItems EvidenceItem[]
+  cvArtifacts CvArtifact[]
+
+  @@index([clerkUserId])
+  @@index([anonymousSessionId])
+  @@index([status])
+}
+
+model JobContext {
+  id String @id @default(cuid())
+  sessionId String @unique
+  clerkUserId String?
+  originalRoleText String
+  pastedJobDescription String? @db.Text
+  uploadedScreenshotName String?
+  uploadedScreenshotContentType String?
+  parsedRequirements Json?
+  parsedKeywords Json?
+  seniorityLevel String?
+  responsibilities Json?
+  companyTone String?
+  mustHaveSkills Json?
+  niceToHaveSkills Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  session ApplicationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([clerkUserId])
+}
+
+model EvidenceItem {
+  id String @id @default(cuid())
+  clerkUserId String?
+  sessionId String?
+  type EvidenceItemType
+  title String
+  description String @db.Text
+  tools Json?
+  skills Json?
+  impact String? @db.Text
+  source EvidenceItemSource
+  confidence EvidenceConfidence
+  proofStrength Int @default(50)
+  senioritySignal String?
+  needsUserConfirmation Boolean @default(false)
+  embedding Json?
+  createdAt DateTime @default(now())
+
+  session ApplicationSession? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([clerkUserId])
+  @@index([sessionId])
+  @@index([type])
+  @@index([source])
+}
+
+model CvArtifact {
+  id String @id @default(cuid())
+  clerkUserId String?
+  sessionId String
+  jobFitPlan Json?
+  cvSections Json?
+  atsText String? @db.Text
+  verificationReport Json?
+  evidenceMap Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  session ApplicationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([clerkUserId])
+  @@index([sessionId])
+}

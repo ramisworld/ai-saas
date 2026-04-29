@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
-import { LucideIcon } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
 
 interface HeadingProps {
     title: string
     description: string
-    icon: LucideIcon
+    icon: ComponentType<SVGProps<SVGSVGElement>>
     iconColor?: string
     bgColor?: string
 }

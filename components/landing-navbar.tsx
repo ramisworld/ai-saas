@@ -1,43 +1,26 @@
-"use client"
-
-import { cn } from "@/lib/utils";
-import { useAuth } from "@clerk/nextjs";
-import { Montserrat } from "next/font/google"
-import Image from "next/image"
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
+export const LandingNavbar = async () => {
+  const { userId } = await auth();
 
-
-const font= Montserrat ({
-    weight: "600",
-    subsets: ["latin"]
-});
-
-export const LandingNavbar = () => {
-    const { isSignedIn } = useAuth();
-
-    return (
-        <nav className="p-4 bg-transparent flex items-center justify-between">
-            <Link href="/" className="flex items-center">
-                <div className="relative h-8 w-8 mr-4">
-                    <Image 
-                        fill
-                        alt="logo"
-                        src="/logo.png"
-                    />
-                </div>
-                <h1 className={cn("text-2xl font-bold text-white", font.className)}>
-                    OsmoMind
-                </h1>
-            </Link>
-            <div className="flex items-center gap-x-2">
-                <Link href={isSignedIn ? "/dashboard" : "/sign-up"}>
-                    <Button variant="outline" className="rounded-full">
-                        Get Started
-                    </Button>
-                </Link>
-            </div>
-        </nav> 
-    )
-}
+  return (
+    <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-6">
+      <Link href="/" className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#111512] text-sm font-semibold text-white">
+          O
+        </div>
+        <div>
+          <p className="text-lg font-semibold tracking-tight">Osmomind</p>
+          <p className="text-xs text-muted-foreground">AI job application agent</p>
+        </div>
+      </Link>
+      <Link
+        href={userId ? "/dashboard" : "/sign-up"}
+        className="rounded-full border border-[#d8d0c2] bg-white px-4 py-2 text-sm font-medium shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#b9ad9a]"
+      >
+        {userId ? "Open workspace" : "Sign up"}
+      </Link>
+    </nav>
+  );
+};

@@ -3,22 +3,28 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import prismadb from "@/lib/prismadb";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 export async function POST(req: Request) {
     const body = await req.text();
     const signature = (await headers()).get("Stripe-Signature") as string;
+    const stripe = getStripe();
 
     let event: Stripe.Event;
 
     try {
+        if (!process.env.STRIPE_WEBHOOK_SECRET) {
+            return new NextResponse("STRIPE_WEBHOOK_SECRET is not configured", { status: 500 });
+        }
+
         event = stripe.webhooks.constructEvent(
             body,
             signature,
-            process.env.STRIPE_WEBHOOK_SECRET!
+            process.env.STRIPE_WEBHOOK_SECRET
         )
-    } catch (error: any) {
-        return new NextResponse(`Webhook Error: ${error.message}`, {status: 400 })
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "Invalid Stripe webhook";
+        return new NextResponse(`Webhook Error: ${message}`, {status: 400 })
     }
 
     const session = event.data.object as Stripe.Checkout.Session;
@@ -40,7 +46,7 @@ export async function POST(req: Request) {
                     stripeCustomerId: subscription.customer as string,
                     stripePriceId: subscription.items.data[0].price.id,
                     stripeCurrentPeriodEnd: new Date (
-                        subscription.current_period_end * 1000
+                        subscription.items.data[0].current_period_end * 1000
                     )
 
                 }
@@ -59,7 +65,7 @@ export async function POST(req: Request) {
             data: {
                 stripePriceId: subscription.items.data[0].price.id,
                 stripeCurrentPeriodEnd: new Date(
-                    subscription.current_period_end * 1000
+                    subscription.items.data[0].current_period_end * 1000
                 ),
             }
         })

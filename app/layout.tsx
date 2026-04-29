@@ -1,24 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs'
 import { ModalProvider } from "@/components/modal-provider";
 import { ToasterProvider } from "@/components/toaster-provider";
-import { CrispProvider } from "@/components/crisp-provider";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
-  title: "OsmoMind",
-  description: "AI Platform",
+  title: "ProofCV | AI CV tailoring for the exact job you want",
+  description:
+    "Tell ProofCV the role. Add your CV or start from scratch. Get a tailored one-page CV using your real experience.",
 };
 
 export default function RootLayout({
@@ -28,10 +17,8 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider> 
-      <html lang="en">
-        <CrispProvider />
-        <body className={`${geistSans.variable} 
-          ${geistMono.variable} antialiased`}>
+      <html lang="en" className="scroll-smooth">
+        <body className="antialiased">
           
           <ModalProvider />
           <ToasterProvider />

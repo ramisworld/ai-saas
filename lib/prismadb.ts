@@ -7,7 +7,9 @@ declare global {
 
 }
 
-const prismadb = globalThis.prisma || new PrismaClient();
+const cachedPrismaIsCurrent = globalThis.prisma && "appUser" in globalThis.prisma;
+
+const prismadb = cachedPrismaIsCurrent ? globalThis.prisma! : new PrismaClient();
 if (process.env.NODE_ENV !== "production") globalThis.prisma = prismadb;
 
 

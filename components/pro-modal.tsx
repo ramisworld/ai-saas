@@ -1,69 +1,46 @@
 "use client"
 
 import { useState } from "react";
-import axios from "axios";
-import { 
-    Check,
-    Code, 
-    Image, 
-    MessageSquare, 
-    Music, 
-    VideoIcon, 
-    Zap
-} from "lucide-react";
+import {
+    BackpackIcon,
+    CardStackIcon,
+    CheckIcon,
+    FileTextIcon,
+    LightningBoltIcon,
+    ReaderIcon,
+} from "@radix-ui/react-icons";
 
-import { 
-    Dialog, 
-    DialogContent, 
-    DialogDescription, 
-    DialogFooter, 
-    DialogHeader, 
-    DialogTitle 
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
 } from "@/components/ui/dialog"
 import { useProModal } from "@/hooks/use-pro-modal";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 
-const tools = [
+const features = [
     {
-      label: "conversation",
-      icon: MessageSquare,
-      color: "text-violet-500",
-      bgcolor: "bg-violet-500/10",
-      href: "/conversation"
-  
+      label: "40 application packs/month",
+      icon: FileTextIcon,
     },
     {
-      label: "Music Generation",
-      icon: Music,
-      color: "text-emerald-500",
-      bgcolor: "bg-emerald-500/10",
-  
+      label: "Full Career Vault",
+      icon: BackpackIcon,
     },
     {
-      label: "Image Generation",
-      icon: Image,
-      color: "text-pink-700",
-      bgcolor: "bg-pink-700/10",
-  
+      label: "Interview prep packs",
+      icon: ReaderIcon,
     },
     {
-      label: "Video Generation",
-      icon: VideoIcon,
-      color: "text-orange-700",
-      bgcolor: "bg-orange-700/10",
-  
+      label: "Application tracker",
+      icon: CardStackIcon,
     },
-    {
-      label: "Code Generation",
-      icon: Code,
-      color: "text-green-700",
-      bgcolor: "bg-green-700/10",
-  
-    }
   ]
 
 export const ProModal = () => {
@@ -73,11 +50,16 @@ export const ProModal = () => {
     const onSubscribe = async () => {
         try {
           setLoading(true)
-          const response = await axios.get("/api/stripe");
+          const response = await fetch("/api/stripe");
+          const payload = await response.json();
 
-          window.location.href = response.data.url;
+          if (!response.ok) {
+            throw new Error(payload.error || "Billing is not configured.");
+          }
+
+          window.location.href = payload.url;
         } catch (error) {
-            toast.error("Something went wrong");
+            toast.error(error instanceof Error ? error.message : "Billing is not available.");
         } finally {
             setLoading(false)
         }
@@ -88,29 +70,29 @@ export const ProModal = () => {
         <Dialog open={proModal.isOpen} onOpenChange={proModal.onClose}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle className="flex justify-center items-center flex-col gap-y-4 pb-2">
-                        <div className="flex items-center gap-x-2 font-bold py-1">
-                            Upgrade to OsmoMind
+                    <DialogTitle className="flex flex-col items-center justify-center gap-y-4 pb-2">
+                        <div className="flex items-center gap-x-2 py-1 font-bold">
+                            Upgrade ProofCV
                             <Badge variant="premium" className="uppercase text-sm py-1">
                                 pro
                             </Badge>
                         </div>
                     </DialogTitle>
-                    <DialogDescription className="text-center pt-2 space-y-2 text-zinc-900 font-medium">
-                        {tools.map((tool) => (
+                    <DialogDescription className="space-y-2 pt-2 text-center font-medium text-zinc-900">
+                        {features.map((feature) => (
                             <Card
-                                key={tool.label}
-                                className="p-3 border-black/5 flex items-center justify-between"
+                                key={feature.label}
+                                className="flex items-center justify-between border-black/5 p-3"
                             >
                                 <div className="flex items-center gap-x-4">
-                                    <div className={cn("p-2 w-fit rounded-md", tool.bgcolor)}>
-                                        <tool.icon className={cn("w-6 h-6", tool.color)}/>
+                                    <div className="w-fit rounded-md bg-[#e7f3ec] p-2 text-[#164b3f]">
+                                        <feature.icon className="h-5 w-5"/>
                                     </div>
-                                    <div className="font-semibold text-sm">
-                                        {tool.label}
+                                    <div className="text-sm font-semibold">
+                                        {feature.label}
                                     </div>
                                 </div>
-                                <Check className="text-primary w-5 h-5"/>
+                                <CheckIcon className="h-5 w-5 text-primary"/>
                             </Card>
                         ))}
                     </DialogDescription>
@@ -124,7 +106,7 @@ export const ProModal = () => {
                         className="w-full"
                     >
                         Upgrade
-                        <Zap className="w-4 h-4 ml-2 fill-white" />
+                        <LightningBoltIcon className="ml-2 h-4 w-4" />
                     </Button>
                 </DialogFooter>
             </DialogContent>

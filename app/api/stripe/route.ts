@@ -2,10 +2,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import prismadb from "@/lib/prismadb";
-import { stripe } from "@/lib/stripe";
-import { absoluteUrl } from "@/lib/utils";
-
-const settingsUrl = `${process.env.NEXT_PUBLIC_APP_URL}/settings`;
+import { getStripe } from "@/lib/stripe";
 
 export async function GET() {
     try {
@@ -13,9 +10,15 @@ export async function GET() {
       const user = await currentUser();
 
       if (!userId || !user) {
-        return new NextResponse("Unauthorized", {status: 401 })
+        return NextResponse.json({ error: "Unauthorized" }, {status: 401 })
       }
 
+      if (!process.env.NEXT_PUBLIC_APP_URL) {
+        return NextResponse.json({ error: "NEXT_PUBLIC_APP_URL is not configured" }, { status: 500 });
+      }
+
+      const settingsUrl = `${process.env.NEXT_PUBLIC_APP_URL}/settings`;
+      const stripe = getStripe();
       const userSubscription = await prismadb.userSubscription.findUnique({
         where: {
             userId
@@ -28,7 +31,16 @@ export async function GET() {
             return_url: settingsUrl,
         });
 
-        return new NextResponse(JSON.stringify({ url: stripeSession.url}));
+        return NextResponse.json({ url: stripeSession.url });
+      }
+
+      const priceId = process.env.STRIPE_PRICE_ID || process.env.STRIPE_PRO_PRICE_ID;
+
+      if (!priceId) {
+        return NextResponse.json(
+          { error: "Stripe checkout is not configured. Add STRIPE_PRICE_ID on the server." },
+          { status: 500 }
+        );
       }
 
       const stripeSession = await stripe.checkout.sessions.create({
@@ -40,18 +52,7 @@ export async function GET() {
         customer_email: user.emailAddresses[0].emailAddress,
         line_items: [
             {
-                price_data: {
-                    currency: "USD",
-                    product_data: {
-                        name: "OsmoMind Pro",
-                        description: "Unlimited AI Generations",
-
-                    },
-                    unit_amount: 500,
-                    recurring: {
-                        interval: "month"
-                    }
-                },
+                price: priceId,
                 quantity: 1
             }
         ],
@@ -60,10 +61,10 @@ export async function GET() {
         },
       });
 
-      return new NextResponse(JSON.stringify({ url: stripeSession.url}));
+      return NextResponse.json({ url: stripeSession.url });
 
     } catch (error) {
       console.log("[STRIPE_ERROR]", error);
-      return new NextResponse("Internal error", { status: 500 })  
+      return NextResponse.json({ error: error instanceof Error ? error.message : "Internal error" }, { status: 500 })  
     }
 }

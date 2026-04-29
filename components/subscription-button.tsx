@@ -1,8 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button";
-import axios from "axios";
-import { Zap } from "lucide-react";
+import { LightningBoltIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -19,11 +18,16 @@ export const SubscriptionButton = ({
     const onClick = async () => {
         try {
             setLoading(true);
-            const response = await axios.get("/api/stripe")
+            const response = await fetch("/api/stripe");
+            const payload = await response.json();
 
-            window.location.href = response.data.url
+            if (!response.ok) {
+                throw new Error(payload.error || "Billing is not configured.");
+            }
+
+            window.location.href = payload.url
         } catch (error) {
-            toast.error("Something went wrong")
+            toast.error(error instanceof Error ? error.message : "Billing is not available.")
         } finally {
             setLoading(false);
         }
@@ -32,7 +36,7 @@ export const SubscriptionButton = ({
     return (
         <Button disabled={loading} variant={isPro ? "default" : "premium"} onClick={onClick}>
             {isPro ? "Manage Subscription" : "Upgrade"}
-            {!isPro && <Zap className="w-4 h-4 ml-2 fill-white "/>}
+            {!isPro && <LightningBoltIcon className="ml-2 h-4 w-4" />}
         </Button>
     )
     
