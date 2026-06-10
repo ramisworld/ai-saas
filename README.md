@@ -1,30 +1,83 @@
-# ProofCV
+# OsmoMind
 
-ProofCV is an AI job application agent. Tell it the role you want, add a job post and your career background, and it creates a tailored application pack around you.
+OsmoMind is a multi-API web app that brings multiple AI-powered tools into one simple interface. It was built to explore how different generation APIs can be combined behind a single product experience with authentication, trial access, subscriptions and parallel API calls.
 
-Core workflow:
+## Overview
 
-- Target role or job post input
-- CV/profile upload or paste
-- Career Vault creation
-- Embedding-based Career Vault retrieval
-- Match score, strengths, gaps, and ATS keywords
-- Tailored CV, cover letter, recruiter message, and interview prep
-- Saved application tracker entry
+The app lets users access different AI tools from one dashboard instead of switching between separate platforms. It includes user authentication, trial access controls and subscription logic so the product can support both free and paid usage.
 
-## Stack
+## Features
 
-- Next.js App Router
-- Clerk authentication
-- Stripe subscriptions
-- Prisma and PostgreSQL
-- OpenAI server-side API calls
-- Tailwind CSS
+* User authentication with Clerk
+* Trial access controls for new users
+* Subscription logic with Stripe
+* Multi-API aggregation behind one interface
+* Parallel API calls for faster response handling
+* Simple dashboard-style user experience
 
-## Environment
+## Tech Stack
 
-Use `.env.example` as the source of required variables. OpenAI, Clerk, Stripe, and database values must stay server-side unless explicitly prefixed with `NEXT_PUBLIC_`.
+* Next.js
+* React
+* TypeScript
+* Clerk
+* Stripe
+* API integrations
+* Parallel async requests
 
-## Safety
+## Why I Built It
 
-ProofCV drafts and tailors application materials. It does not submit applications, guarantee interviews, or fabricate experience. Missing evidence is treated as a gap.
+I built OsmoMind to learn how to turn multiple AI APIs into a usable product experience. The goal was not just to call one model or one endpoint, but to design the basic structure around a real SaaS-style app with auth, access control, subscriptions and backend API logic.
+
+## What I Learned
+
+Through this project, I gained experience with:
+
+* Connecting multiple external APIs into one product
+* Managing authenticated user flows
+* Building trial and subscription-based access logic
+* Handling parallel API requests
+* Structuring a small SaaS-style application
+* Thinking through product flow, not just individual features
+
+## Getting Started
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create an `.env.local` file and add the required environment variables:
+
+```bash
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+
+STRIPE_SECRET_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# Add any API keys used by the app
+API_KEY=
+```
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+Open the app locally:
+
+```bash
+http://localhost:3000
+```
+
+## Notes
+
+This project was built as an early AI product experiment. The main focus was learning how to combine authentication, payments and multiple AI APIs into a working full-stack application.
+
+## Author
+
+Built by Rami AlObaidy.
